@@ -44,11 +44,17 @@ class EcoFlowApiClient:
             return
 
         if isinstance(value, dict):
-            for key, item in value.items():
+            for key in sorted(value):
+                item = value[key]
                 EcoFlowApiClient._process_value(f"{prefix}.{key}", item, output)
             return
 
-        output.append(f"{prefix}={value}")
+        if isinstance(value, bool):
+            rendered = "true" if value else "false"
+        else:
+            rendered = str(value)
+
+        output.append(f"{prefix}={rendered}")
 
     @classmethod
     def _generate_query_params(cls, data: dict[str, Any] | None) -> str:
