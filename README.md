@@ -8,7 +8,8 @@ Integracao customizada para Home Assistant via HACS para controle e telemetria E
   - Entrada de `application key` e `secret`.
   - Selecao de inversores (SN) disponiveis na conta com selecao multipla.
 - Cria sensores para todos os campos mapeados da telemetria.
-- Adiciona servicos para desligar AC1 e AC2.
+- Cria switches para AC1, AC2 e um switch mestre AC1+AC2 por inversor.
+- Adiciona servicos para ligar/desligar AC1, AC2 e AC1+AC2 juntos.
 
 ## Instalacao
 
@@ -19,7 +20,20 @@ Integracao customizada para Home Assistant via HACS para controle e telemetria E
 
 ## Servicos
 
+- `ecoflow_delta3_max_plus.turn_on_ac1`
 - `ecoflow_delta3_max_plus.turn_off_ac1`
+- `ecoflow_delta3_max_plus.turn_on_ac2`
 - `ecoflow_delta3_max_plus.turn_off_ac2`
+- `ecoflow_delta3_max_plus.turn_on_all_ac`
+- `ecoflow_delta3_max_plus.turn_off_all_ac`
 
 Ambos aceitam `sn` opcional. Se omitido, o servico aplica a todos os inversores configurados.
+
+## Changelog
+
+### 0.1.2
+- Adicionado switch mestre AC1+AC2 por inversor para ligar/desligar os dois canais juntos.
+- Adicionados servicos `turn_on_all_ac` e `turn_off_all_ac`.
+
+### 0.1.1
+- Ajustes de compatibilidade e robustez do fluxo de configuracao e servicos.

@@ -68,6 +68,7 @@ async def async_setup_entry(
                     description=description,
                 )
             )
+        entities.append(EcoFlowAllAcSwitch(coordinator=coordinator, sn=sn, device=device))
 
     async_add_entities(entities)
 
@@ -128,6 +129,73 @@ class EcoFlowAcSwitch(CoordinatorEntity[EcoFlowDataUpdateCoordinator], SwitchEnt
             raise HomeAssistantError(f"Falha ao desligar AC{self.entity_description.ac_index}: {err}") from err
         if ok:
             await self.coordinator.async_request_refresh()
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        return DeviceInfo(
+            identifiers={(DOMAIN, self._sn)},
+            name=str(self._device.get("deviceName") or self._sn),
+            manufacturer="EcoFlow",
+            model=str(self._device.get("productName") or "Delta 3 Max Plus"),
+            serial_number=self._sn,
+        )
+
+
+class EcoFlowAllAcSwitch(CoordinatorEntity[EcoFlowDataUpdateCoordinator], SwitchEntity):
+    """Represent a single switch controlling AC1 and AC2 together."""
+
+    def __init__(
+        self,
+        coordinator: EcoFlowDataUpdateCoordinator,
+        sn: str,
+        device: dict[str, Any],
+    ) -> None:
+        super().__init__(coordinator)
+        self._sn = sn
+        self._device = device
+
+        device_name = str(device.get("deviceName") or sn)
+        self._attr_name = f"{device_name} AC1+AC2"
+        self._attr_unique_id = f"{DOMAIN}_{sn}_ac_all_outlet"
+
+    @property
+    def available(self) -> bool:
+        return bool(self.coordinator.data.get(self._sn))
+
+    @property
+    def is_on(self) -> bool | None:
+        payload = self.coordinator.data.get(self._sn, {})
+        ac1 = payload.get("cfgAcOutOpen")
+        ac2 = payload.get("cfgAc2OutOpen")
+        if ac1 is None and ac2 is None:
+            return None
+        return bool(ac1) and bool(ac2)
+
+    async def _async_set_both(self, state: bool) -> None:
+        failed: list[str] = []
+
+        for ac_index in (1, 2):
+            try:
+                ok = await self.coordinator.api.async_set_ac_outlet_power(self._sn, ac_index, state)
+            except EcoFlowApiError as err:
+                raise HomeAssistantError(
+                    f"Falha ao {'ligar' if state else 'desligar'} AC{ac_index}: {err}"
+                ) from err
+
+            if not ok:
+                failed.append(f"AC{ac_index}")
+
+        if failed:
+            action = "ligar" if state else "desligar"
+            raise HomeAssistantError(f"Falha ao {action} {', '.join(failed)}")
+
+        await self.coordinator.async_request_refresh()
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        await self._async_set_both(True)
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        await self._async_set_both(False)
 
     @property
     def device_info(self) -> DeviceInfo:

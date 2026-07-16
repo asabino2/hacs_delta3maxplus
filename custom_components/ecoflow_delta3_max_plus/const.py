@@ -20,6 +20,8 @@ SERVICE_TURN_OFF_AC1 = "turn_off_ac1"
 SERVICE_TURN_OFF_AC2 = "turn_off_ac2"
 SERVICE_TURN_ON_AC1 = "turn_on_ac1"
 SERVICE_TURN_ON_AC2 = "turn_on_ac2"
+SERVICE_TURN_OFF_ALL_AC = "turn_off_all_ac"
+SERVICE_TURN_ON_ALL_AC = "turn_on_all_ac"
 
 DEFAULT_SCAN_INTERVAL = timedelta(seconds=30)
 
