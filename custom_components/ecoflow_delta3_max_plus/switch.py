@@ -133,9 +133,12 @@ class EcoFlowAcSwitch(CoordinatorEntity[EcoFlowDataUpdateCoordinator], SwitchEnt
                 "cfgAcOutOpen": "ac1OutStatus",
                 "cfgAc2OutOpen": "ac2OutStatus",
                 "cfgDc12vOutOpen": "out12vStatus",
+                "cfgXboostEn": "xboostEn",
             }
             fallback_key = fallback_by_key.get(self.entity_description.state_key)
             fallback_value = payload.get(fallback_key) if fallback_key else None
+            if isinstance(fallback_value, bool):
+                return fallback_value
             if isinstance(fallback_value, str):
                 normalized = fallback_value.strip().lower()
                 if normalized in {"on", "off"}:

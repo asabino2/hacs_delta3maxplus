@@ -165,6 +165,11 @@ SENSOR_DESCRIPTIONS: tuple[EcoFlowSensorEntityDescription, ...] = (
         name="12v Out Status",
         field_description="Status da saida 12v: on quando flowInfo12v for diferente de 4, off quando for 4.",
     ),
+    EcoFlowSensorEntityDescription(
+        key="xboostEn",
+        name="X-Boost",
+        field_description="Status do X-Boost com base na tag xboostEn: true=ligado, false=desligado.",
+    ),
 )
 
 

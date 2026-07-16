@@ -435,6 +435,9 @@ class EcoFlowApiClient:
         ac1_cfg = cls._as_bool_or_none(raw_data.get("cfgAcOutOpen"))
         ac2_cfg = cls._as_bool_or_none(raw_data.get("cfgAc2OutOpen"))
         dc12v_cfg = cls._as_bool_or_none(raw_data.get("cfgDc12vOutOpen"))
+        xboost_state = cls._as_bool_or_none(raw_data.get("xboostEn"))
+        if xboost_state is None:
+            xboost_state = cls._as_bool_or_none(raw_data.get("cfgXboostEn"))
         ac1_flow = cls._flow_info_is_on(raw_data.get("flowInfoAcOut"))
         ac2_flow = cls._flow_info_is_on(raw_data.get("flowInfoAc2Out"))
         dc12v_flow = cls._flow_info_is_on(raw_data.get("flowInfo12v"))
@@ -464,6 +467,7 @@ class EcoFlowApiClient:
             "cfgDc12vOutOpen": dc12v_cfg if dc12v_cfg is not None else dc12v_flow,
             "cfgBeepEn": cls._as_bool_or_none(raw_data.get("cfgBeepEn")),
             "cfgXboostEn": cls._as_bool_or_none(raw_data.get("cfgXboostEn")),
+            "xboostEn": xboost_state,
             "energyBackupEnabled": cls._as_bool_or_none(raw_data.get("energyBackupEn")),
             "ac1OutStatus": cls._flow_info_status(raw_data.get("flowInfoAcOut")),
             "ac2OutStatus": cls._flow_info_status(raw_data.get("flowInfoAc2Out")),
