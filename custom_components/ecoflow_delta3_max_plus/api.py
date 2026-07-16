@@ -309,6 +309,22 @@ class EcoFlowApiClient:
             return "charging"
         return None
 
+    @staticmethod
+    def _as_bool_or_none(value: Any) -> bool | None:
+        if value is None:
+            return None
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, (int, float)):
+            return bool(value)
+        if isinstance(value, str):
+            normalized = value.strip().lower()
+            if normalized in {"1", "true", "on", "yes"}:
+                return True
+            if normalized in {"0", "false", "off", "no"}:
+                return False
+        return None
+
     @classmethod
     def map_data_to_api_response(cls, raw_data: dict[str, Any]) -> dict[str, Any]:
         ac_out_items = raw_data.get("powGetAcOutList.powGetAcOutItem", [])
@@ -338,6 +354,8 @@ class EcoFlowApiClient:
             "cmsDsgRemTimeFmt": cls._format_seconds_hhmmss(cms_dsg_rem_time),
             "cmsChgDsgState": cms_chg_dsg_state,
             "cmsChgDsgStateDesc": cls._map_chg_dsg_state_description(cms_chg_dsg_state),
+            "cfgAcOutOpen": cls._as_bool_or_none(raw_data.get("cfgAcOutOpen")),
+            "cfgAc2OutOpen": cls._as_bool_or_none(raw_data.get("cfgAc2OutOpen")),
         }
 
     async def async_get_mapped_data(self, sn: str) -> dict[str, Any]:

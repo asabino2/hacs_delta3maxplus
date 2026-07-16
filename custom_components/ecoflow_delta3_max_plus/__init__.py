@@ -26,12 +26,14 @@ from .const import (
     DOMAIN,
     SERVICE_TURN_OFF_AC1,
     SERVICE_TURN_OFF_AC2,
+    SERVICE_TURN_ON_AC1,
+    SERVICE_TURN_ON_AC2,
 )
 from .coordinator import EcoFlowDataUpdateCoordinator
 
 SERVICE_FIELD_SN = "sn"
 
-PLATFORMS: list[Platform] = [Platform.SENSOR]
+PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.SWITCH]
 SERVICES_KEY = "services_registered"
 
 
@@ -93,21 +95,27 @@ async def _async_register_services(hass: HomeAssistant) -> None:
 
     schema = vol.Schema({vol.Optional(SERVICE_FIELD_SN): cv.string})
 
-    async def _register(name: str, ac_index: int) -> None:
+    async def _register(name: str, ac_index: int, state: bool) -> None:
         async def _handler(call: ServiceCall) -> None:
-            await _async_handle_power_service(hass, call, ac_index=ac_index)
+            await _async_handle_power_service(hass, call, ac_index=ac_index, state=state)
 
         hass.services.async_register(DOMAIN, name, _handler, schema=schema)
 
-    await _register(SERVICE_TURN_OFF_AC1, 1)
-    await _register(SERVICE_TURN_OFF_AC2, 2)
+    await _register(SERVICE_TURN_ON_AC1, 1, True)
+    await _register(SERVICE_TURN_OFF_AC1, 1, False)
+    await _register(SERVICE_TURN_ON_AC2, 2, True)
+    await _register(SERVICE_TURN_OFF_AC2, 2, False)
 
     hass.data[DOMAIN][SERVICES_KEY] = True
 
 
 def _async_unregister_services(hass: HomeAssistant) -> None:
+    if hass.services.has_service(DOMAIN, SERVICE_TURN_ON_AC1):
+        hass.services.async_remove(DOMAIN, SERVICE_TURN_ON_AC1)
     if hass.services.has_service(DOMAIN, SERVICE_TURN_OFF_AC1):
         hass.services.async_remove(DOMAIN, SERVICE_TURN_OFF_AC1)
+    if hass.services.has_service(DOMAIN, SERVICE_TURN_ON_AC2):
+        hass.services.async_remove(DOMAIN, SERVICE_TURN_ON_AC2)
     if hass.services.has_service(DOMAIN, SERVICE_TURN_OFF_AC2):
         hass.services.async_remove(DOMAIN, SERVICE_TURN_OFF_AC2)
 
@@ -120,7 +128,12 @@ def _iter_entries(hass: HomeAssistant):
         yield data
 
 
-async def _async_handle_power_service(hass: HomeAssistant, call: ServiceCall, ac_index: int) -> None:
+async def _async_handle_power_service(
+    hass: HomeAssistant,
+    call: ServiceCall,
+    ac_index: int,
+    state: bool,
+) -> None:
     requested_sn = str(call.data.get(SERVICE_FIELD_SN, "")).strip()
 
     targets: list[tuple[EcoFlowApiClient, EcoFlowDataUpdateCoordinator, str]] = []
@@ -145,7 +158,7 @@ async def _async_handle_power_service(hass: HomeAssistant, call: ServiceCall, ac
 
     failed: list[str] = []
     for api, _coordinator, sn in targets:
-        ok = await api.async_set_ac_outlet_power(sn, ac_index, False)
+        ok = await api.async_set_ac_outlet_power(sn, ac_index, state)
         if not ok:
             failed.append(sn)
 
@@ -153,4 +166,5 @@ async def _async_handle_power_service(hass: HomeAssistant, call: ServiceCall, ac
         await refresh()
 
     if failed:
-        raise HomeAssistantError(f"Falha ao desligar AC{ac_index} para SN(s): {', '.join(failed)}")
+        action = "ligar" if state else "desligar"
+        raise HomeAssistantError(f"Falha ao {action} AC{ac_index} para SN(s): {', '.join(failed)}")

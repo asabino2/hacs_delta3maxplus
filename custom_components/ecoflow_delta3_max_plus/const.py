@@ -18,6 +18,8 @@ ATTR_DEVICE_SN = "device_sn"
 
 SERVICE_TURN_OFF_AC1 = "turn_off_ac1"
 SERVICE_TURN_OFF_AC2 = "turn_off_ac2"
+SERVICE_TURN_ON_AC1 = "turn_on_ac1"
+SERVICE_TURN_ON_AC2 = "turn_on_ac2"
 
 DEFAULT_SCAN_INTERVAL = timedelta(seconds=30)
 
