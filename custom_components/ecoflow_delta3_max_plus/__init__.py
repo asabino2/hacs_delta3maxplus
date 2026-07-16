@@ -29,10 +29,7 @@ from .const import (
 )
 from .coordinator import EcoFlowDataUpdateCoordinator
 
-try:
-    from homeassistant.const import CONF_SN
-except ImportError:
-    CONF_SN = "sn"
+SERVICE_FIELD_SN = "sn"
 
 PLATFORMS: list[Platform] = [Platform.SENSOR]
 SERVICES_KEY = "services_registered"
@@ -94,7 +91,7 @@ async def _async_register_services(hass: HomeAssistant) -> None:
     if hass.data[DOMAIN].get(SERVICES_KEY):
         return
 
-    schema = vol.Schema({vol.Optional(CONF_SN): cv.string})
+    schema = vol.Schema({vol.Optional(SERVICE_FIELD_SN): cv.string})
 
     async def _register(name: str, ac_index: int) -> None:
         async def _handler(call: ServiceCall) -> None:
@@ -124,7 +121,7 @@ def _iter_entries(hass: HomeAssistant):
 
 
 async def _async_handle_power_service(hass: HomeAssistant, call: ServiceCall, ac_index: int) -> None:
-    requested_sn = str(call.data.get(CONF_SN, "")).strip()
+    requested_sn = str(call.data.get(SERVICE_FIELD_SN, "")).strip()
 
     targets: list[tuple[EcoFlowApiClient, EcoFlowDataUpdateCoordinator, str]] = []
     refresh_callbacks: set[Callable[[], Any]] = set()
