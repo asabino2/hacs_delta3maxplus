@@ -244,10 +244,17 @@ class EcoFlowApiClient:
         raise EcoFlowApiError(f"Failed to fetch telemetry for SN {sn}: {last_error}")
 
     async def async_set_ac_outlet_power(self, sn: str, ac_index: int, state: bool) -> bool:
+        payload = self.build_ac_power_payload(sn, ac_index, state)
+        return await self._async_send_quota_payload(sn, payload)
+
+    async def async_set_quota_params(self, sn: str, params: dict[str, Any]) -> bool:
+        payload = self.build_quota_payload(sn, params)
+        return await self._async_send_quota_payload(sn, payload)
+
+    async def _async_send_quota_payload(self, sn: str, payload: dict[str, Any]) -> bool:
         if not self._active_host:
             await self.async_get_device_params_raw(sn)
 
-        payload = self.build_ac_power_payload(sn, ac_index, state)
         last_error: dict[str, Any] | None = None
         last_auth_data: dict[str, Any] | None = None
 
@@ -296,6 +303,10 @@ class EcoFlowApiClient:
     @staticmethod
     def build_ac_power_payload(sn: str, ac_index: int, state: bool) -> dict[str, Any]:
         params = {"cfgAc2OutOpen": bool(state)} if ac_index == 2 else {"cfgAcOutOpen": bool(state)}
+        return EcoFlowApiClient.build_quota_payload(sn, params)
+
+    @staticmethod
+    def build_quota_payload(sn: str, params: dict[str, Any]) -> dict[str, Any]:
         return {
             "sn": sn,
             "cmdId": 17,
@@ -429,6 +440,10 @@ class EcoFlowApiClient:
             "cmsChgDsgStateDesc": cls._map_chg_dsg_state_description(cms_chg_dsg_state),
             "cfgAcOutOpen": cls._as_bool_or_none(raw_data.get("cfgAcOutOpen")),
             "cfgAc2OutOpen": cls._as_bool_or_none(raw_data.get("cfgAc2OutOpen")),
+            "cfgDc12vOutOpen": cls._as_bool_or_none(raw_data.get("cfgDc12vOutOpen")),
+            "cfgBeepEn": cls._as_bool_or_none(raw_data.get("cfgBeepEn")),
+            "cfgXboostEn": cls._as_bool_or_none(raw_data.get("cfgXboostEn")),
+            "energyBackupEnabled": cls._as_bool_or_none(raw_data.get("energyBackupEn")),
         }
 
     async def async_get_mapped_data(self, sn: str) -> dict[str, Any]:

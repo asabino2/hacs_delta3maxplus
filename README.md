@@ -31,6 +31,10 @@ Ambos aceitam `sn` opcional. Se omitido, o servico aplica a todos os inversores 
 
 ## Changelog
 
+### 0.1.3
+- Adicionados novos switches por inversor: `DC12v Outlet`, `Energy Backup`, `Buzzer` e `X-Boost`.
+- Implementado envio de comando `quota` generico para suportar payloads customizados desses switches.
+
 ### 0.1.2
 - Adicionado switch mestre AC1+AC2 por inversor para ligar/desligar os dois canais juntos.
 - Adicionados servicos `turn_on_all_ac` e `turn_off_all_ac`.

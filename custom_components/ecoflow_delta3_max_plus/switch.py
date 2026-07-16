@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from collections.abc import Callable
 from typing import Any
 
 from homeassistant.components.switch import SwitchEntity, SwitchEntityDescription
@@ -22,8 +23,9 @@ from .coordinator import EcoFlowDataUpdateCoordinator
 class EcoFlowSwitchEntityDescription(SwitchEntityDescription):
     """Describe EcoFlow switches."""
 
-    ac_index: int
+    ac_index: int | None = None
     state_key: str
+    params_builder: Callable[[bool], dict[str, Any]] | None = None
 
 
 SWITCH_DESCRIPTIONS: tuple[EcoFlowSwitchEntityDescription, ...] = (
@@ -38,6 +40,30 @@ SWITCH_DESCRIPTIONS: tuple[EcoFlowSwitchEntityDescription, ...] = (
         name="AC2 Outlet",
         ac_index=2,
         state_key="cfgAc2OutOpen",
+    ),
+    EcoFlowSwitchEntityDescription(
+        key="dc12v_outlet",
+        name="DC12v Outlet",
+        state_key="cfgDc12vOutOpen",
+        params_builder=lambda state: {"cfgDc12vOutOpen": state},
+    ),
+    EcoFlowSwitchEntityDescription(
+        key="energy_backup",
+        name="Energy Backup",
+        state_key="energyBackupEnabled",
+        params_builder=lambda state: {"cfgEnergyBackup": {"energyBackupEn": state}},
+    ),
+    EcoFlowSwitchEntityDescription(
+        key="buzzer",
+        name="Buzzer",
+        state_key="cfgBeepEn",
+        params_builder=lambda state: {"cfgBeepEn": state},
+    ),
+    EcoFlowSwitchEntityDescription(
+        key="xboost",
+        name="X-Boost",
+        state_key="cfgXboostEn",
+        params_builder=lambda state: {"cfgXboostEn": state},
     ),
 )
 
@@ -108,27 +134,35 @@ class EcoFlowAcSwitch(CoordinatorEntity[EcoFlowDataUpdateCoordinator], SwitchEnt
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         try:
-            ok = await self.coordinator.api.async_set_ac_outlet_power(
-                self._sn,
-                self.entity_description.ac_index,
-                True,
-            )
+            ok = await self._async_send_command(True)
         except EcoFlowApiError as err:
-            raise HomeAssistantError(f"Falha ao ligar AC{self.entity_description.ac_index}: {err}") from err
+            raise HomeAssistantError(f"Falha ao ligar {self.entity_description.name}: {err}") from err
         if ok:
             await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         try:
-            ok = await self.coordinator.api.async_set_ac_outlet_power(
-                self._sn,
-                self.entity_description.ac_index,
-                False,
-            )
+            ok = await self._async_send_command(False)
         except EcoFlowApiError as err:
-            raise HomeAssistantError(f"Falha ao desligar AC{self.entity_description.ac_index}: {err}") from err
+            raise HomeAssistantError(f"Falha ao desligar {self.entity_description.name}: {err}") from err
         if ok:
             await self.coordinator.async_request_refresh()
+
+    async def _async_send_command(self, state: bool) -> bool:
+        if self.entity_description.ac_index is not None:
+            return await self.coordinator.api.async_set_ac_outlet_power(
+                self._sn,
+                self.entity_description.ac_index,
+                state,
+            )
+
+        if self.entity_description.params_builder is None:
+            raise HomeAssistantError("Switch sem comando configurado")
+
+        return await self.coordinator.api.async_set_quota_params(
+            self._sn,
+            self.entity_description.params_builder(state),
+        )
 
     @property
     def device_info(self) -> DeviceInfo:
