@@ -8,7 +8,7 @@ from typing import Any
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_SN, Platform
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import config_validation as cv
@@ -28,6 +28,11 @@ from .const import (
     SERVICE_TURN_OFF_AC2,
 )
 from .coordinator import EcoFlowDataUpdateCoordinator
+
+try:
+    from homeassistant.const import CONF_SN
+except ImportError:
+    CONF_SN = "sn"
 
 PLATFORMS: list[Platform] = [Platform.SENSOR]
 SERVICES_KEY = "services_registered"
