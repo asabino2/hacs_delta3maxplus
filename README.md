@@ -31,6 +31,9 @@ Ambos aceitam `sn` opcional. Se omitido, o servico aplica a todos os inversores 
 
 ## Changelog
 
+### 0.1.7
+- Sensores de potencia passaram a usar valores absolutos (sempre positivos), incluindo AC input/output, total output, total input e USB-C power.
+
 ### 0.1.6
 - Adicionado sensor `X-Boost` baseado na tag `xboostEn` (true=ligado, false=desligado).
 - Switch `X-Boost` agora usa fallback para o valor de `xboostEn`, refletindo melhor o estado real no dashboard.
