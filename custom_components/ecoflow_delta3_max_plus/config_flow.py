@@ -14,8 +14,7 @@ from .api import EcoFlowApiClient, EcoFlowApiError, EcoFlowAuthError
 from .const import CONF_ACCESS_KEY, CONF_SECRET_KEY, CONF_SELECTED_DEVICES, CONF_SELECTED_SNS, DOMAIN
 
 
-@config_entries.HANDLERS.register(DOMAIN)
-class EcoFlowDelta3MaxPlusConfigFlow(config_entries.ConfigFlow):
+class _EcoFlowDelta3MaxPlusConfigFlow(config_entries.ConfigFlow):
     """Handle a config flow for EcoFlow Delta 3 Max Plus."""
 
     VERSION = 1
@@ -121,3 +120,13 @@ class EcoFlowDelta3MaxPlusConfigFlow(config_entries.ConfigFlow):
             }
         )
         return self.async_show_form(step_id="select_devices", data_schema=schema, errors=errors)
+
+
+try:
+    class EcoFlowDelta3MaxPlusConfigFlow(_EcoFlowDelta3MaxPlusConfigFlow, domain=DOMAIN):
+        """Config flow for modern Home Assistant versions."""
+
+except TypeError:
+    EcoFlowDelta3MaxPlusConfigFlow = config_entries.HANDLERS.register(DOMAIN)(
+        _EcoFlowDelta3MaxPlusConfigFlow
+    )
