@@ -417,6 +417,13 @@ class EcoFlowApiClient:
             return None
         return "off" if numeric == 4 else "on"
 
+    @staticmethod
+    def _flow_info_is_on(value: Any) -> bool | None:
+        status = EcoFlowApiClient._flow_info_status(value)
+        if status is None:
+            return None
+        return status == "on"
+
     @classmethod
     def map_data_to_api_response(cls, raw_data: dict[str, Any]) -> dict[str, Any]:
         ac_out_items = raw_data.get("powGetAcOutList.powGetAcOutItem", [])
@@ -425,6 +432,12 @@ class EcoFlowApiClient:
 
         cms_dsg_rem_time = float(raw_data.get("cmsDsgRemTime") or 0)
         cms_chg_dsg_state = float(raw_data.get("cmsChgDsgState") or 0)
+        ac1_cfg = cls._as_bool_or_none(raw_data.get("cfgAcOutOpen"))
+        ac2_cfg = cls._as_bool_or_none(raw_data.get("cfgAc2OutOpen"))
+        dc12v_cfg = cls._as_bool_or_none(raw_data.get("cfgDc12vOutOpen"))
+        ac1_flow = cls._flow_info_is_on(raw_data.get("flowInfoAcOut"))
+        ac2_flow = cls._flow_info_is_on(raw_data.get("flowInfoAc2Out"))
+        dc12v_flow = cls._flow_info_is_on(raw_data.get("flowInfo12v"))
 
         return {
             "powGetAcIn": float(raw_data.get("powGetAcIn") or 0),
@@ -446,9 +459,9 @@ class EcoFlowApiClient:
             "cmsDsgRemTimeFmt": cls._format_seconds_hhmmss(cms_dsg_rem_time),
             "cmsChgDsgState": cms_chg_dsg_state,
             "cmsChgDsgStateDesc": cls._map_chg_dsg_state_description(cms_chg_dsg_state),
-            "cfgAcOutOpen": cls._as_bool_or_none(raw_data.get("cfgAcOutOpen")),
-            "cfgAc2OutOpen": cls._as_bool_or_none(raw_data.get("cfgAc2OutOpen")),
-            "cfgDc12vOutOpen": cls._as_bool_or_none(raw_data.get("cfgDc12vOutOpen")),
+            "cfgAcOutOpen": ac1_cfg if ac1_cfg is not None else ac1_flow,
+            "cfgAc2OutOpen": ac2_cfg if ac2_cfg is not None else ac2_flow,
+            "cfgDc12vOutOpen": dc12v_cfg if dc12v_cfg is not None else dc12v_flow,
             "cfgBeepEn": cls._as_bool_or_none(raw_data.get("cfgBeepEn")),
             "cfgXboostEn": cls._as_bool_or_none(raw_data.get("cfgXboostEn")),
             "energyBackupEnabled": cls._as_bool_or_none(raw_data.get("energyBackupEn")),

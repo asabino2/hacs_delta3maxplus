@@ -31,6 +31,9 @@ Ambos aceitam `sn` opcional. Se omitido, o servico aplica a todos os inversores 
 
 ## Changelog
 
+### 0.1.5
+- Corrigida a reflexao de estado dos switches AC1, AC2 e 12v no dashboard usando fallback por `flowInfo*` quando `cfg*` nao vier no payload.
+
 ### 0.1.4
 - Adicionados 3 sensores de status: `AC1 Out Status`, `AC2 Out Status` e `12v Out Status`.
 - Regra aplicada: status `off` quando `flowInfo*` for `4`, caso contrario `on`.
