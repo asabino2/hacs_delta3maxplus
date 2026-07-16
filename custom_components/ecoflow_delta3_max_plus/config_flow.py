@@ -14,7 +14,8 @@ from .api import EcoFlowApiClient, EcoFlowApiError, EcoFlowAuthError
 from .const import CONF_ACCESS_KEY, CONF_SECRET_KEY, CONF_SELECTED_DEVICES, CONF_SELECTED_SNS, DOMAIN
 
 
-class EcoFlowDelta3MaxPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+@config_entries.HANDLERS.register(DOMAIN)
+class EcoFlowDelta3MaxPlusConfigFlow(config_entries.ConfigFlow):
     """Handle a config flow for EcoFlow Delta 3 Max Plus."""
 
     VERSION = 1
