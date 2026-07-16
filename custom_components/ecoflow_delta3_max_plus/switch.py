@@ -8,10 +8,12 @@ from typing import Any
 from homeassistant.components.switch import SwitchEntity, SwitchEntityDescription
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+from .api import EcoFlowApiError
 from .const import CONF_SELECTED_DEVICES, DATA_COORDINATOR, DOMAIN
 from .coordinator import EcoFlowDataUpdateCoordinator
 
@@ -104,20 +106,26 @@ class EcoFlowAcSwitch(CoordinatorEntity[EcoFlowDataUpdateCoordinator], SwitchEnt
         return bool(value)
 
     async def async_turn_on(self, **kwargs: Any) -> None:
-        ok = await self.coordinator.api.async_set_ac_outlet_power(
-            self._sn,
-            self.entity_description.ac_index,
-            True,
-        )
+        try:
+            ok = await self.coordinator.api.async_set_ac_outlet_power(
+                self._sn,
+                self.entity_description.ac_index,
+                True,
+            )
+        except EcoFlowApiError as err:
+            raise HomeAssistantError(f"Falha ao ligar AC{self.entity_description.ac_index}: {err}") from err
         if ok:
             await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
-        ok = await self.coordinator.api.async_set_ac_outlet_power(
-            self._sn,
-            self.entity_description.ac_index,
-            False,
-        )
+        try:
+            ok = await self.coordinator.api.async_set_ac_outlet_power(
+                self._sn,
+                self.entity_description.ac_index,
+                False,
+            )
+        except EcoFlowApiError as err:
+            raise HomeAssistantError(f"Falha ao desligar AC{self.entity_description.ac_index}: {err}") from err
         if ok:
             await self.coordinator.async_request_refresh()
 

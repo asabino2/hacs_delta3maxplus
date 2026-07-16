@@ -122,10 +122,20 @@ class EcoFlowApiClient:
         data = await self._parse_response_data(response)
         return {"host": host, "url": url, "data": data}
 
-    async def _request_put(self, host: str, endpoint: str, body: dict[str, Any]) -> dict[str, Any]:
-        query_string = self._generate_query_params(body)
-        headers = self._build_signed_headers(query_string)
-        url = f"https://{host}/iot-open/sign{endpoint}{'?' + query_string if query_string else ''}"
+    async def _request_put(
+        self,
+        host: str,
+        endpoint: str,
+        body: dict[str, Any],
+        *,
+        sign_from_body: bool = True,
+        include_query: bool = True,
+    ) -> dict[str, Any]:
+        query_from_body = self._generate_query_params(body)
+        sign_query = query_from_body if sign_from_body else ""
+        url_query = query_from_body if include_query else ""
+        headers = self._build_signed_headers(sign_query)
+        url = f"https://{host}/iot-open/sign{endpoint}{'?' + url_query if url_query else ''}"
 
         try:
             response = await self._session.put(
@@ -138,6 +148,36 @@ class EcoFlowApiClient:
             )
         except ClientError as err:
             raise EcoFlowApiError(f"PUT {endpoint} failed on host {host}: {err}") from err
+
+        data = await self._parse_response_data(response)
+        return {"host": host, "url": url, "data": data, "requestBody": body}
+
+    async def _request_post(
+        self,
+        host: str,
+        endpoint: str,
+        body: dict[str, Any],
+        *,
+        sign_from_body: bool = True,
+        include_query: bool = True,
+    ) -> dict[str, Any]:
+        query_from_body = self._generate_query_params(body)
+        sign_query = query_from_body if sign_from_body else ""
+        url_query = query_from_body if include_query else ""
+        headers = self._build_signed_headers(sign_query)
+        url = f"https://{host}/iot-open/sign{endpoint}{'?' + url_query if url_query else ''}"
+
+        try:
+            response = await self._session.post(
+                url,
+                headers={
+                    **headers,
+                    "Content-Type": "application/json;charset=UTF-8",
+                },
+                json=body,
+            )
+        except ClientError as err:
+            raise EcoFlowApiError(f"POST {endpoint} failed on host {host}: {err}") from err
 
         data = await self._parse_response_data(response)
         return {"host": host, "url": url, "data": data, "requestBody": body}
@@ -203,21 +243,48 @@ class EcoFlowApiClient:
 
         payload = self.build_ac_power_payload(sn, ac_index, state)
         last_error: dict[str, Any] | None = None
+        last_auth_data: dict[str, Any] | None = None
+
+        variants = (
+            ("put", True, True),
+            ("put", False, False),
+            ("post", False, False),
+            ("post", True, True),
+        )
 
         for host in self._hosts_to_try():
-            result = await self._request_put(host, "/device/quota", payload)
-            data = result.get("data")
+            for method, sign_from_body, include_query in variants:
+                if method == "post":
+                    result = await self._request_post(
+                        host,
+                        "/device/quota",
+                        payload,
+                        sign_from_body=sign_from_body,
+                        include_query=include_query,
+                    )
+                else:
+                    result = await self._request_put(
+                        host,
+                        "/device/quota",
+                        payload,
+                        sign_from_body=sign_from_body,
+                        include_query=include_query,
+                    )
 
-            if self._is_success(data):
-                self._active_host = host
-                return True
+                data = result.get("data")
 
-            if self._is_auth_error(data):
-                raise EcoFlowAuthError(str(data))
+                if self._is_success(data):
+                    self._active_host = host
+                    return True
 
-            last_error = result
+                if self._is_auth_error(data):
+                    last_auth_data = data
+
+                last_error = result
 
         _LOGGER.error("Failed AC command for SN %s, AC%d, state %s: %s", sn, ac_index, state, last_error)
+        if last_auth_data is not None:
+            raise EcoFlowAuthError(str(last_auth_data))
         return False
 
     @staticmethod
