@@ -1,0 +1,53 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Credenciais EcoFlow",
+        "description": "Insira application key e secret da sua conta EcoFlow.",
+        "data": {
+          "access_key": "Application Key",
+          "secret_key": "Secret"
+        }
+      },
+      "select_devices": {
+        "title": "Selecionar Inversores",
+        "description": "Selecione os inversores disponiveis para monitorar no Home Assistant.",
+        "data": {
+          "selected_sns": "Inversores"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Nao foi possivel conectar a API EcoFlow.",
+      "invalid_auth": "Credenciais invalidas.",
+      "no_devices": "Nenhum inversor encontrado para essa conta.",
+      "select_at_least_one": "Selecione ao menos um inversor.",
+      "unknown": "Erro inesperado."
+    },
+    "abort": {
+      "already_configured": "Integracao ja configurada para os inversores selecionados."
+    }
+  },
+  "services": {
+    "turn_off_ac1": {
+      "name": "Desligar AC1",
+      "description": "Envia comando para desligar a saida AC1.",
+      "fields": {
+        "sn": {
+          "name": "Serial Number (SN)",
+          "description": "Se omitido, aplica o comando para todos os inversores configurados."
+        }
+      }
+    },
+    "turn_off_ac2": {
+      "name": "Desligar AC2",
+      "description": "Envia comando para desligar a saida AC2.",
+      "fields": {
+        "sn": {
+          "name": "Serial Number (SN)",
+          "description": "Se omitido, aplica o comando para todos os inversores configurados."
+        }
+      }
+    }
+  }
+}

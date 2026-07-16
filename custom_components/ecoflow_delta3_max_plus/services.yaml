@@ -1,0 +1,21 @@
+turn_off_ac1:
+  name: Desligar AC1
+  description: Envia comando para desligar a saida AC1 no inversor EcoFlow.
+  fields:
+    sn:
+      name: Serial Number (SN)
+      description: Serial number do inversor. Se omitido, desliga AC1 em todos os inversores configurados.
+      example: R331ZEB123456789
+      selector:
+        text:
+
+turn_off_ac2:
+  name: Desligar AC2
+  description: Envia comando para desligar a saida AC2 no inversor EcoFlow.
+  fields:
+    sn:
+      name: Serial Number (SN)
+      description: Serial number do inversor. Se omitido, desliga AC2 em todos os inversores configurados.
+      example: R331ZEB123456789
+      selector:
+        text:
