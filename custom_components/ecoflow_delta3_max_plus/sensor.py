@@ -150,6 +150,21 @@ SENSOR_DESCRIPTIONS: tuple[EcoFlowSensorEntityDescription, ...] = (
         name="Charge/Discharge State Description",
         field_description="Descricao legivel do estado de carga/descarga.",
     ),
+    EcoFlowSensorEntityDescription(
+        key="ac1OutStatus",
+        name="AC1 Out Status",
+        field_description="Status da saida AC1: on quando flowInfoAcOut for diferente de 4, off quando for 4.",
+    ),
+    EcoFlowSensorEntityDescription(
+        key="ac2OutStatus",
+        name="AC2 Out Status",
+        field_description="Status da saida AC2: on quando flowInfoAc2Out for diferente de 4, off quando for 4.",
+    ),
+    EcoFlowSensorEntityDescription(
+        key="out12vStatus",
+        name="12v Out Status",
+        field_description="Status da saida 12v: on quando flowInfo12v for diferente de 4, off quando for 4.",
+    ),
 )
 
 

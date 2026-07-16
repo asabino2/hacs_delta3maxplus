@@ -31,6 +31,10 @@ Ambos aceitam `sn` opcional. Se omitido, o servico aplica a todos os inversores 
 
 ## Changelog
 
+### 0.1.4
+- Adicionados 3 sensores de status: `AC1 Out Status`, `AC2 Out Status` e `12v Out Status`.
+- Regra aplicada: status `off` quando `flowInfo*` for `4`, caso contrario `on`.
+
 ### 0.1.3
 - Adicionados novos switches por inversor: `DC12v Outlet`, `Energy Backup`, `Buzzer` e `X-Boost`.
 - Implementado envio de comando `quota` generico para suportar payloads customizados desses switches.

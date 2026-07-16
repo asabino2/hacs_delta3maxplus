@@ -409,6 +409,14 @@ class EcoFlowApiClient:
                 return False
         return None
 
+    @staticmethod
+    def _flow_info_status(value: Any) -> str | None:
+        try:
+            numeric = int(float(value))
+        except (TypeError, ValueError):
+            return None
+        return "off" if numeric == 4 else "on"
+
     @classmethod
     def map_data_to_api_response(cls, raw_data: dict[str, Any]) -> dict[str, Any]:
         ac_out_items = raw_data.get("powGetAcOutList.powGetAcOutItem", [])
@@ -444,6 +452,9 @@ class EcoFlowApiClient:
             "cfgBeepEn": cls._as_bool_or_none(raw_data.get("cfgBeepEn")),
             "cfgXboostEn": cls._as_bool_or_none(raw_data.get("cfgXboostEn")),
             "energyBackupEnabled": cls._as_bool_or_none(raw_data.get("energyBackupEn")),
+            "ac1OutStatus": cls._flow_info_status(raw_data.get("flowInfoAcOut")),
+            "ac2OutStatus": cls._flow_info_status(raw_data.get("flowInfoAc2Out")),
+            "out12vStatus": cls._flow_info_status(raw_data.get("flowInfo12v")),
         }
 
     async def async_get_mapped_data(self, sn: str) -> dict[str, Any]:
