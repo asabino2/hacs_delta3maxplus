@@ -28,6 +28,27 @@
       "already_configured": "Integracao ja configurada para os inversores selecionados."
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Configuracao de atualizacao",
+        "description": "Escolha se deseja usar o intervalo padrao ou um customizado.",
+        "data": {
+          "scan_interval_mode": "Modo de intervalo"
+        }
+      },
+      "custom": {
+        "title": "Intervalo customizado",
+        "description": "Informe o intervalo de atualizacao em segundos.",
+        "data": {
+          "scan_interval_seconds": "Intervalo customizado (segundos)"
+        }
+      }
+    },
+    "error": {
+      "invalid_scan_interval": "Informe um intervalo valido em segundos (minimo 1)."
+    }
+  },
   "services": {
     "turn_off_ac1": {
       "name": "Desligar AC1",

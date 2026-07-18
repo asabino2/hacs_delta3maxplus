@@ -2,22 +2,41 @@
 
 from __future__ import annotations
 
+from datetime import timedelta
 from typing import Any
 
 import voluptuous as vol
 
 from homeassistant import config_entries
+from homeassistant.core import callback
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import EcoFlowApiClient, EcoFlowApiError, EcoFlowAuthError
-from .const import CONF_ACCESS_KEY, CONF_SECRET_KEY, CONF_SELECTED_DEVICES, CONF_SELECTED_SNS, DOMAIN
+from .const import (
+    CONF_ACCESS_KEY,
+    CONF_SCAN_INTERVAL_MODE,
+    CONF_SCAN_INTERVAL_SECONDS,
+    CONF_SECRET_KEY,
+    CONF_SELECTED_DEVICES,
+    CONF_SELECTED_SNS,
+    DEFAULT_SCAN_INTERVAL,
+    DOMAIN,
+    SCAN_INTERVAL_MODE_CUSTOM,
+    SCAN_INTERVAL_MODE_DEFAULT,
+)
 
 
 class _EcoFlowDelta3MaxPlusConfigFlow(config_entries.ConfigFlow):
     """Handle a config flow for EcoFlow Delta 3 Max Plus."""
 
     VERSION = 1
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: config_entries.ConfigEntry):
+        """Get the options flow for this handler."""
+        return EcoFlowDelta3MaxPlusOptionsFlow(config_entry)
 
     def __init__(self) -> None:
         self._credentials: dict[str, str] = {}
@@ -120,6 +139,104 @@ class _EcoFlowDelta3MaxPlusConfigFlow(config_entries.ConfigFlow):
             }
         )
         return self.async_show_form(step_id="select_devices", data_schema=schema, errors=errors)
+
+
+class EcoFlowDelta3MaxPlusOptionsFlow(config_entries.OptionsFlow):
+    """Handle options flow for EcoFlow Delta 3 Max Plus."""
+
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
+        self._config_entry = config_entry
+
+    async def async_step_init(self, user_input: dict[str, Any] | None = None):
+        """Select interval mode."""
+        errors: dict[str, str] = {}
+
+        default_seconds = int(DEFAULT_SCAN_INTERVAL.total_seconds())
+        mode = self._config_entry.options.get(CONF_SCAN_INTERVAL_MODE)
+        if mode not in (SCAN_INTERVAL_MODE_DEFAULT, SCAN_INTERVAL_MODE_CUSTOM):
+            mode = (
+                SCAN_INTERVAL_MODE_CUSTOM
+                if CONF_SCAN_INTERVAL_SECONDS in self._config_entry.options
+                else SCAN_INTERVAL_MODE_DEFAULT
+            )
+
+        if user_input is not None:
+            selected_mode = user_input.get(CONF_SCAN_INTERVAL_MODE, SCAN_INTERVAL_MODE_DEFAULT)
+            if selected_mode == SCAN_INTERVAL_MODE_DEFAULT:
+                return self.async_create_entry(
+                    title="",
+                    data={CONF_SCAN_INTERVAL_MODE: SCAN_INTERVAL_MODE_DEFAULT},
+                )
+            return await self.async_step_custom(
+                {
+                    CONF_SCAN_INTERVAL_SECONDS: int(
+                        self._config_entry.options.get(CONF_SCAN_INTERVAL_SECONDS, default_seconds)
+                    )
+                }
+            )
+
+        schema = vol.Schema(
+            {
+                vol.Required(CONF_SCAN_INTERVAL_MODE, default=mode): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=[
+                            selector.SelectOptionDict(
+                                value=SCAN_INTERVAL_MODE_DEFAULT,
+                                label="Default Scan Interval",
+                            ),
+                            selector.SelectOptionDict(
+                                value=SCAN_INTERVAL_MODE_CUSTOM,
+                                label="Custom",
+                            ),
+                        ],
+                        mode=selector.SelectSelectorMode.LIST,
+                    )
+                )
+            }
+        )
+        return self.async_show_form(step_id="init", data_schema=schema, errors=errors)
+
+    async def async_step_custom(self, user_input: dict[str, Any] | None = None):
+        """Set custom scan interval seconds."""
+        errors: dict[str, str] = {}
+
+        default_seconds = int(DEFAULT_SCAN_INTERVAL.total_seconds())
+        current_seconds = int(self._config_entry.options.get(CONF_SCAN_INTERVAL_SECONDS, default_seconds))
+
+        if user_input is not None:
+            selected_seconds = user_input.get(CONF_SCAN_INTERVAL_SECONDS, current_seconds)
+            try:
+                selected_seconds = int(selected_seconds)
+            except (TypeError, ValueError):
+                errors["base"] = "invalid_scan_interval"
+            else:
+                if selected_seconds < 1:
+                    errors["base"] = "invalid_scan_interval"
+
+            if not errors:
+                return self.async_create_entry(
+                    title="",
+                    data={
+                        CONF_SCAN_INTERVAL_MODE: SCAN_INTERVAL_MODE_CUSTOM,
+                        CONF_SCAN_INTERVAL_SECONDS: selected_seconds,
+                    },
+                )
+            current_seconds = int(selected_seconds) if isinstance(selected_seconds, int) else current_seconds
+
+        schema = vol.Schema(
+            {
+                vol.Required(CONF_SCAN_INTERVAL_SECONDS, default=current_seconds): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=1,
+                        max=86400,
+                        step=1,
+                        mode=selector.NumberSelectorMode.BOX,
+                        unit_of_measurement="s",
+                    )
+                )
+            }
+        )
+        return self.async_show_form(step_id="custom", data_schema=schema, errors=errors)
 
 
 try:

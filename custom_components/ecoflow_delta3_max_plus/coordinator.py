@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from datetime import timedelta
 from typing import Any
 
 from homeassistant.core import HomeAssistant
@@ -17,12 +18,18 @@ _LOGGER = logging.getLogger(__name__)
 class EcoFlowDataUpdateCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
     """Coordinator that fetches telemetry for all selected devices."""
 
-    def __init__(self, hass: HomeAssistant, api: EcoFlowApiClient, sns: list[str]) -> None:
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        api: EcoFlowApiClient,
+        sns: list[str],
+        update_interval: timedelta = DEFAULT_SCAN_INTERVAL,
+    ) -> None:
         super().__init__(
             hass,
             _LOGGER,
             name="EcoFlow Delta 3 Max Plus",
-            update_interval=DEFAULT_SCAN_INTERVAL,
+            update_interval=update_interval,
         )
         self.api = api
         self.sns = sns

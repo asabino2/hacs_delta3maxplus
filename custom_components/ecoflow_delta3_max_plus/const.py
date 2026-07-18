@@ -8,6 +8,11 @@ CONF_ACCESS_KEY = "access_key"
 CONF_SECRET_KEY = "secret_key"
 CONF_SELECTED_SNS = "selected_sns"
 CONF_SELECTED_DEVICES = "selected_devices"
+CONF_SCAN_INTERVAL_MODE = "scan_interval_mode"
+CONF_SCAN_INTERVAL_SECONDS = "scan_interval_seconds"
+
+SCAN_INTERVAL_MODE_DEFAULT = "default"
+SCAN_INTERVAL_MODE_CUSTOM = "custom"
 
 DATA_API = "api"
 DATA_COORDINATOR = "coordinator"

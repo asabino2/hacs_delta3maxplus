@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from datetime import timedelta
 from typing import Any
 
 import voluptuous as vol
@@ -17,13 +18,17 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from .api import EcoFlowApiClient
 from .const import (
     CONF_ACCESS_KEY,
+    CONF_SCAN_INTERVAL_MODE,
+    CONF_SCAN_INTERVAL_SECONDS,
     CONF_SECRET_KEY,
     CONF_SELECTED_DEVICES,
     CONF_SELECTED_SNS,
     DATA_API,
     DATA_COORDINATOR,
     DATA_DEVICES,
+    DEFAULT_SCAN_INTERVAL,
     DOMAIN,
+    SCAN_INTERVAL_MODE_CUSTOM,
     SERVICE_TURN_OFF_ALL_AC,
     SERVICE_TURN_OFF_AC1,
     SERVICE_TURN_OFF_AC2,
@@ -56,9 +61,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     selected_sns = list(entry.data.get(CONF_SELECTED_SNS, []))
     selected_devices = list(entry.data.get(CONF_SELECTED_DEVICES, []))
+    scan_interval = _resolve_scan_interval(entry)
 
-    coordinator = EcoFlowDataUpdateCoordinator(hass, api, selected_sns)
+    coordinator = EcoFlowDataUpdateCoordinator(hass, api, selected_sns, update_interval=scan_interval)
     await coordinator.async_config_entry_first_refresh()
+
+    entry.async_on_unload(entry.add_update_listener(_async_update_listener))
 
     hass.data[DOMAIN][entry.entry_id] = {
         DATA_API: api,
@@ -69,6 +77,28 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await _async_register_services(hass)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
+
+
+async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Reload entry when options are updated."""
+    await hass.config_entries.async_reload(entry.entry_id)
+
+
+def _resolve_scan_interval(entry: ConfigEntry) -> timedelta:
+    """Resolve scan interval from options, falling back to default."""
+    mode = entry.options.get(CONF_SCAN_INTERVAL_MODE)
+    if mode != SCAN_INTERVAL_MODE_CUSTOM:
+        return DEFAULT_SCAN_INTERVAL
+
+    try:
+        seconds = int(entry.options.get(CONF_SCAN_INTERVAL_SECONDS))
+    except (TypeError, ValueError):
+        return DEFAULT_SCAN_INTERVAL
+
+    if seconds < 1:
+        return DEFAULT_SCAN_INTERVAL
+
+    return timedelta(seconds=seconds)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
