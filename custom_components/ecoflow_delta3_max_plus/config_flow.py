@@ -186,11 +186,11 @@ class EcoFlowDelta3MaxPlusOptionsFlow(config_entries.OptionsFlow):
                         options=[
                             selector.SelectOptionDict(
                                 value=SCAN_INTERVAL_MODE_DEFAULT,
-                                label="Default Scan Interval",
+                                label="Default Scan Interval (usa o intervalo padrao)",
                             ),
                             selector.SelectOptionDict(
                                 value=SCAN_INTERVAL_MODE_CUSTOM,
-                                label="Custom",
+                                label="Custom (preencha o campo de segundos abaixo)",
                             ),
                         ],
                         mode=selector.SelectSelectorMode.LIST,
@@ -199,15 +199,7 @@ class EcoFlowDelta3MaxPlusOptionsFlow(config_entries.OptionsFlow):
                 vol.Required(
                     CONF_SCAN_INTERVAL_SECONDS,
                     default=int(self._config_entry.options.get(CONF_SCAN_INTERVAL_SECONDS, default_seconds)),
-                ): selector.NumberSelector(
-                    selector.NumberSelectorConfig(
-                        min=1,
-                        max=86400,
-                        step=1,
-                        mode=selector.NumberSelectorMode.BOX,
-                        unit_of_measurement="s",
-                    )
-                )
+                ): vol.All(vol.Coerce(int), vol.Range(min=1, max=86400))
             }
         )
         return self.async_show_form(step_id="init", data_schema=schema, errors=errors)

@@ -31,6 +31,14 @@ Ambos aceitam `sn` opcional. Se omitido, o servico aplica a todos os inversores 
 
 ## Changelog
 
+### 0.1.10
+- Adicionado fallback visual no formulario de Configure com orientacao explicita para preenchimento do intervalo quando o modo `Custom` for selecionado.
+- Ajustados os rotulos das opcoes para deixar claro que o campo de segundos deve ser preenchido no modo customizado.
+
+### 0.1.9
+- Corrigida a exibicao do campo de intervalo no botao Configure para ambientes onde `NumberSelector` em options flow nao aparece.
+- Campo de segundos agora usa entrada numerica classica com validacao de faixa (1 a 86400).
+
 ### 0.1.8
 - Adicionado botao de configuracao da integracao (Configure) para alterar intervalo de atualizacao.
 - Novas opcoes com selecao: `Default Scan Interval` (usa `DEFAULT_SCAN_INTERVAL`) ou `Custom` com campo numerico em segundos.

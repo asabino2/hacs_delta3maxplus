@@ -32,10 +32,10 @@
     "step": {
       "init": {
         "title": "Configuracao de atualizacao",
-        "description": "Escolha o modo e informe o intervalo em segundos. No modo padrao, o valor informado e ignorado.",
+        "description": "Escolha o modo. Se selecionar Custom, preencha o campo de segundos abaixo. No modo padrao, o valor informado e ignorado.",
         "data": {
           "scan_interval_mode": "Modo de intervalo",
-          "scan_interval_seconds": "Intervalo customizado (segundos)"
+          "scan_interval_seconds": "Intervalo customizado em segundos (exemplo: 30)"
         }
       }
     },
