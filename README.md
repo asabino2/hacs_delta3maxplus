@@ -35,6 +35,7 @@ Ambos aceitam `sn` opcional. Se omitido, o servico aplica a todos os inversores 
 - Adicionado botao de configuracao da integracao (Configure) para alterar intervalo de atualizacao.
 - Novas opcoes com selecao: `Default Scan Interval` (usa `DEFAULT_SCAN_INTERVAL`) ou `Custom` com campo numerico em segundos.
 - Alteracao de opcoes agora recarrega automaticamente a integracao para aplicar o novo intervalo.
+- Campo numerico de intervalo exibido na mesma tela das opcoes de modo para facilitar o preenchimento.
 
 ### 0.1.7
 - Sensores de potencia passaram a usar valores absolutos (sempre positivos), incluindo AC input/output, total output, total input e USB-C power.

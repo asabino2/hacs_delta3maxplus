@@ -148,7 +148,7 @@ class EcoFlowDelta3MaxPlusOptionsFlow(config_entries.OptionsFlow):
         self._config_entry = config_entry
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None):
-        """Select interval mode."""
+        """Manage interval options in a single form."""
         errors: dict[str, str] = {}
 
         default_seconds = int(DEFAULT_SCAN_INTERVAL.total_seconds())
@@ -162,18 +162,22 @@ class EcoFlowDelta3MaxPlusOptionsFlow(config_entries.OptionsFlow):
 
         if user_input is not None:
             selected_mode = user_input.get(CONF_SCAN_INTERVAL_MODE, SCAN_INTERVAL_MODE_DEFAULT)
-            if selected_mode == SCAN_INTERVAL_MODE_DEFAULT:
-                return self.async_create_entry(
-                    title="",
-                    data={CONF_SCAN_INTERVAL_MODE: SCAN_INTERVAL_MODE_DEFAULT},
-                )
-            return await self.async_step_custom(
-                {
-                    CONF_SCAN_INTERVAL_SECONDS: int(
-                        self._config_entry.options.get(CONF_SCAN_INTERVAL_SECONDS, default_seconds)
-                    )
-                }
-            )
+            selected_seconds = user_input.get(CONF_SCAN_INTERVAL_SECONDS, default_seconds)
+            try:
+                selected_seconds = int(selected_seconds)
+            except (TypeError, ValueError):
+                errors["base"] = "invalid_scan_interval"
+            else:
+                if selected_seconds < 1:
+                    errors["base"] = "invalid_scan_interval"
+
+            if not errors:
+                options: dict[str, Any] = {CONF_SCAN_INTERVAL_MODE: selected_mode}
+                if selected_mode == SCAN_INTERVAL_MODE_CUSTOM:
+                    options[CONF_SCAN_INTERVAL_SECONDS] = selected_seconds
+                return self.async_create_entry(title="", data=options)
+
+            mode = selected_mode
 
         schema = vol.Schema(
             {
@@ -191,41 +195,11 @@ class EcoFlowDelta3MaxPlusOptionsFlow(config_entries.OptionsFlow):
                         ],
                         mode=selector.SelectSelectorMode.LIST,
                     )
-                )
-            }
-        )
-        return self.async_show_form(step_id="init", data_schema=schema, errors=errors)
-
-    async def async_step_custom(self, user_input: dict[str, Any] | None = None):
-        """Set custom scan interval seconds."""
-        errors: dict[str, str] = {}
-
-        default_seconds = int(DEFAULT_SCAN_INTERVAL.total_seconds())
-        current_seconds = int(self._config_entry.options.get(CONF_SCAN_INTERVAL_SECONDS, default_seconds))
-
-        if user_input is not None:
-            selected_seconds = user_input.get(CONF_SCAN_INTERVAL_SECONDS, current_seconds)
-            try:
-                selected_seconds = int(selected_seconds)
-            except (TypeError, ValueError):
-                errors["base"] = "invalid_scan_interval"
-            else:
-                if selected_seconds < 1:
-                    errors["base"] = "invalid_scan_interval"
-
-            if not errors:
-                return self.async_create_entry(
-                    title="",
-                    data={
-                        CONF_SCAN_INTERVAL_MODE: SCAN_INTERVAL_MODE_CUSTOM,
-                        CONF_SCAN_INTERVAL_SECONDS: selected_seconds,
-                    },
-                )
-            current_seconds = int(selected_seconds) if isinstance(selected_seconds, int) else current_seconds
-
-        schema = vol.Schema(
-            {
-                vol.Required(CONF_SCAN_INTERVAL_SECONDS, default=current_seconds): selector.NumberSelector(
+                ),
+                vol.Required(
+                    CONF_SCAN_INTERVAL_SECONDS,
+                    default=int(self._config_entry.options.get(CONF_SCAN_INTERVAL_SECONDS, default_seconds)),
+                ): selector.NumberSelector(
                     selector.NumberSelectorConfig(
                         min=1,
                         max=86400,
@@ -236,7 +210,7 @@ class EcoFlowDelta3MaxPlusOptionsFlow(config_entries.OptionsFlow):
                 )
             }
         )
-        return self.async_show_form(step_id="custom", data_schema=schema, errors=errors)
+        return self.async_show_form(step_id="init", data_schema=schema, errors=errors)
 
 
 try:
