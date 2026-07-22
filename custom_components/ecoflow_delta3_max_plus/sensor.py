@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from homeassistant.components.sensor import SensorEntity, SensorEntityDescription, SensorStateClass
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorEntityDescription, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import PERCENTAGE, UnitOfPower
 from homeassistant.core import HomeAssistant
@@ -36,6 +36,7 @@ SENSOR_DESCRIPTIONS: tuple[EcoFlowSensorEntityDescription, ...] = (
         key="batteryperc",
         name="Battery Percentage",
         native_unit_of_measurement=PERCENTAGE,
+        device_class=SensorDeviceClass.BATTERY,   
         state_class=SensorStateClass.MEASUREMENT,
         field_description="Percentual atual da bateria.",
     ),
