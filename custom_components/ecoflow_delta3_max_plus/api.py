@@ -430,7 +430,7 @@ class EcoFlowApiClient:
         item1 = ac_out_items[0] if isinstance(ac_out_items, list) and len(ac_out_items) > 0 else 0
         item3 = ac_out_items[2] if isinstance(ac_out_items, list) and len(ac_out_items) > 2 else 0
 
-        cms_dsg_rem_time = float(raw_data.get("cmsDsgRemTime") or 0)
+        cms_dsg_rem_time = float(raw_data.get("cmsDsgRemTime") * 60 or 0)
         cms_chg_dsg_state = float(raw_data.get("cmsChgDsgState") or 0)
         ac1_cfg = cls._as_bool_or_none(raw_data.get("cfgAcOutOpen"))
         ac2_cfg = cls._as_bool_or_none(raw_data.get("cfgAc2OutOpen"))
@@ -458,8 +458,8 @@ class EcoFlowApiClient:
             "PowerUsbTypeC1": cls._as_positive_number(raw_data.get("powGetTypec1")),
             "PowerUsbTypeC2": cls._as_positive_number(raw_data.get("powGetTypec2")),
             "PowerUsbTypeC3": cls._as_positive_number(raw_data.get("powGetTypec3")),
-            "cmsDsgRemTime": cms_dsg_rem_time * 60,
-            "cmsDsgRemTimeFmt": cls._format_seconds_hhmmss(cms_dsg_rem_time * 60),
+            "cmsDsgRemTime": cms_dsg_rem_time,
+            "cmsDsgRemTimeFmt": cls._format_seconds_hhmmss(cms_dsg_rem_time),
             "cmsChgDsgState": cms_chg_dsg_state,
             "cmsChgDsgStateDesc": cls._map_chg_dsg_state_description(cms_chg_dsg_state),
             "cfgAcOutOpen": ac1_cfg if ac1_cfg is not None else ac1_flow,
