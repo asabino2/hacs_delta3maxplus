@@ -459,7 +459,7 @@ class EcoFlowApiClient:
             "PowerUsbTypeC2": cls._as_positive_number(raw_data.get("powGetTypec2")),
             "PowerUsbTypeC3": cls._as_positive_number(raw_data.get("powGetTypec3")),
             "cmsDsgRemTime": cms_dsg_rem_time * 60,
-            "cmsDsgRemTimeFmt": cls._format_seconds_hhmmss(cms_dsg_rem_time),
+            "cmsDsgRemTimeFmt": cls._format_seconds_hhmmss(cms_dsg_rem_time * 60),
             "cmsChgDsgState": cms_chg_dsg_state,
             "cmsChgDsgStateDesc": cls._map_chg_dsg_state_description(cms_chg_dsg_state),
             "cfgAcOutOpen": ac1_cfg if ac1_cfg is not None else ac1_flow,
