@@ -30,7 +30,7 @@ SENSOR_DESCRIPTIONS: tuple[EcoFlowSensorEntityDescription, ...] = (
         name="AC Input Power",
         native_unit_of_measurement=UnitOfPower.WATT,
         state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.POWER
+        device_class=SensorDeviceClass.POWER,
         field_description="Potencia de entrada AC atual em watts.",
     ),
     EcoFlowSensorEntityDescription(
@@ -46,7 +46,7 @@ SENSOR_DESCRIPTIONS: tuple[EcoFlowSensorEntityDescription, ...] = (
         name="Total Output Power",
         native_unit_of_measurement=UnitOfPower.WATT,
         state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.POWER
+        device_class=SensorDeviceClass.POWER,
         field_description="Soma da potencia total de saida.",
     ),
     EcoFlowSensorEntityDescription(
@@ -54,7 +54,7 @@ SENSOR_DESCRIPTIONS: tuple[EcoFlowSensorEntityDescription, ...] = (
         name="AC1 Output Power",
         native_unit_of_measurement=UnitOfPower.WATT,
         state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.POWER
+        device_class=SensorDeviceClass.POWER,
         field_description="Potencia de saida atual no canal AC1.",
     ),
     EcoFlowSensorEntityDescription(
@@ -62,7 +62,7 @@ SENSOR_DESCRIPTIONS: tuple[EcoFlowSensorEntityDescription, ...] = (
         name="AC2 Output Power",
         native_unit_of_measurement=UnitOfPower.WATT,
         state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.POWER
+        device_class=SensorDeviceClass.POWER,
         field_description="Potencia de saida atual no canal AC2.",
     ),
     EcoFlowSensorEntityDescription(
@@ -70,7 +70,7 @@ SENSOR_DESCRIPTIONS: tuple[EcoFlowSensorEntityDescription, ...] = (
         name="Total Input Power",
         native_unit_of_measurement=UnitOfPower.WATT,
         state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.POWER
+        device_class=SensorDeviceClass.POWER,
         field_description="Soma total de potencia de entrada em watts.",
     ),
     EcoFlowSensorEntityDescription(
@@ -97,7 +97,7 @@ SENSOR_DESCRIPTIONS: tuple[EcoFlowSensorEntityDescription, ...] = (
         name="USB-C3 Power",
         native_unit_of_measurement=UnitOfPower.WATT,
         state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.POWER
+        device_class=SensorDeviceClass.POWER,
         field_description="Potencia atual da porta USB-C3.",
     ),
     EcoFlowSensorEntityDescription(
@@ -105,7 +105,7 @@ SENSOR_DESCRIPTIONS: tuple[EcoFlowSensorEntityDescription, ...] = (
         name="USB-C1 Power",
         native_unit_of_measurement=UnitOfPower.WATT,
         state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.POWER
+        device_class=SensorDeviceClass.POWER,
         field_description="Potencia atual da porta USB-C1.",
     ),
     EcoFlowSensorEntityDescription(
@@ -113,7 +113,7 @@ SENSOR_DESCRIPTIONS: tuple[EcoFlowSensorEntityDescription, ...] = (
         name="USB-C2 Power",
         native_unit_of_measurement=UnitOfPower.WATT,
         state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.POWER
+        device_class=SensorDeviceClass.POWER,
         field_description="Potencia atual da porta USB-C2.",
     ),
     EcoFlowSensorEntityDescription(
@@ -121,7 +121,7 @@ SENSOR_DESCRIPTIONS: tuple[EcoFlowSensorEntityDescription, ...] = (
         name="USB-C1 Absolute Power",
         native_unit_of_measurement=UnitOfPower.WATT,
         state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.POWER
+        device_class=SensorDeviceClass.POWER,
         field_description="Potencia absoluta (valor positivo) da porta USB-C1.",
     ),
     EcoFlowSensorEntityDescription(
@@ -129,7 +129,7 @@ SENSOR_DESCRIPTIONS: tuple[EcoFlowSensorEntityDescription, ...] = (
         name="USB-C2 Absolute Power",
         native_unit_of_measurement=UnitOfPower.WATT,
         state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.POWER
+        device_class=SensorDeviceClass.POWER,
         field_description="Potencia absoluta (valor positivo) da porta USB-C2.",
     ),
     EcoFlowSensorEntityDescription(
@@ -137,7 +137,7 @@ SENSOR_DESCRIPTIONS: tuple[EcoFlowSensorEntityDescription, ...] = (
         name="USB-C3 Absolute Power",
         native_unit_of_measurement=UnitOfPower.WATT,
         state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.POWER
+        device_class=SensorDeviceClass.POWER,
         field_description="Potencia absoluta (valor positivo) da porta USB-C3.",
     ),
     EcoFlowSensorEntityDescription(
