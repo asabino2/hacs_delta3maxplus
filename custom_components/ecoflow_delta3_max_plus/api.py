@@ -430,8 +430,12 @@ class EcoFlowApiClient:
         item1 = ac_out_items[0] if isinstance(ac_out_items, list) and len(ac_out_items) > 0 else 0
         item3 = ac_out_items[2] if isinstance(ac_out_items, list) and len(ac_out_items) > 2 else 0
 
-        cms_dsg_rem_time = float(raw_data.get("cmsDsgRemTime") * 60 or 0)
         cms_chg_dsg_state = float(raw_data.get("cmsChgDsgState") or 0)
+        if cms_chg_dsg_state == 1:
+           cms_dsg_rem_time = float(raw_data.get("cmsDsgRemTime") * 60 or 0)
+        else:
+           cms_dsg_rem_time = float(raw_data.get("cmsDsgRemTime")  or 0) 
+
         ac1_cfg = cls._as_bool_or_none(raw_data.get("cfgAcOutOpen"))
         ac2_cfg = cls._as_bool_or_none(raw_data.get("cfgAc2OutOpen"))
         dc12v_cfg = cls._as_bool_or_none(raw_data.get("cfgDc12vOutOpen"))
